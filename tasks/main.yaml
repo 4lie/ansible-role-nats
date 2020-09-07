@@ -25,24 +25,24 @@
     name: nats-server
   when: nats_server_service_template.changed
 
-- name: Create NATS Server custom configs directory
-  file:
-    path: /etc/nats-server/conf.d
-    state: directory
+- name: Check for NATS Server custom config template existance
+  local_action: stat path={{ nats_config_template }}
+  register: nats_config_template
 
-- name: Create NATS Server main configuration file
+- name: Create NATS Server configuration file from custom template
   template:
-    src: nats-server.conf.j2
+    src: "{{ nats_config_template }}"
     dest: /etc/nats-server/nats-server.conf
     mode: 0644
+  when: nats_config_template.stat.exists
   notify: restart nats-server
 
-- name: Create NATS Server custom configuration files
+- name: Create NATS Server configuration file from role template
   template:
-    src: "{{ item }}.j2"
-    dest: "/etc/nats-server/conf.d/{{ item.split('/')[-1] }}"
+    src: "nats-server.conf.j2"
+    dest: /etc/nats-server/nats-server.conf
     mode: 0644
-  with_items: "{{ nats_custom_conf }}"
+  when: not nats_config_template.stat.exists
   notify: restart nats-server
 
 - name: Ensure NATS Server service is started and enabled on boot

@@ -16,7 +16,7 @@ NATS.io is a simple, secure and high performance open source messaging system fo
 
 ``` yaml
 nats_version: "2.1.6"
-nats_custom_conf: []
+nats_config_template: "{{ playbook_dir }}/templates/nats-server.conf.j2"
 ```
 
 ## Example Playbook
