@@ -1,6 +1,9 @@
 - name: Check if NATS Server package is installed
   shell: "dpkg-query -W -f='${Version}' nats-server | grep {{ nats_version }}"
   register: is_installed
+  check_mode: no
+  failed_when: no
+  changed_when: no
 
 - name: Install NATS Server package from GitHub
   apt:
@@ -22,25 +25,20 @@
     name: nats-server
   when: nats_server_service_template.changed
 
-- name: Check for NATS Server custom config template existance
-  local_action: stat path="{{ nats_config_template }}"
-  when: nats_config_template != ""
-  register: nats_config_template_status
+- name: Create NATS Server configuration file from role template
+  template:
+    src: "nats-server.conf.j2"
+    dest: /etc/nats-server/nats-server.conf
+    mode: 0644
+  when: nats_config_template == ""
+  notify: restart nats-server
 
 - name: Create NATS Server configuration file from custom template
   template:
     src: "{{ nats_config_template }}"
     dest: /etc/nats-server/nats-server.conf
     mode: 0644
-  when: nats_config_template is defined and nats_config_template_status.stat.exists
-  notify: restart nats-server
-
-- name: Create NATS Server configuration file from role template
-  template:
-    src: "nats-server.conf.j2"
-    dest: /etc/nats-server/nats-server.conf
-    mode: 0644
-  when: nats_config_template is undefined or not nats_config_template_status.stat.exists
+  when: nats_config_template != ""
   notify: restart nats-server
 
 - name: Ensure NATS Server service is started and enabled on boot
