@@ -26,7 +26,7 @@
   when: nats_server_service_template.changed
 
 - name: Check for NATS Server custom config template existance
-  local_action: stat path={{ nats_config_template }}
+  local_action: stat path="{{ nats_config_template }}"
   register: nats_config_template
 
 - name: Create NATS Server configuration file from custom template
