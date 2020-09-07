@@ -25,6 +25,11 @@
     name: nats-server
   when: nats_server_service_template.changed
 
+- name: Create NATS Server config directory
+  file:
+    path: /etc/nats-server
+    state: directory
+
 - name: Create NATS Server configuration file from role template
   template:
     src: "nats-server.conf.j2"
