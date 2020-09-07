@@ -35,7 +35,7 @@
     src: "{{ nats_config_template }}"
     dest: /etc/nats-server/nats-server.conf
     mode: 0644
-  when: nats_config_template_status is defined and nats_config_template_status.stat.exists
+  when: nats_config_template is defined and nats_config_template_status.stat.exists
   notify: restart nats-server
 
 - name: Create NATS Server configuration file from role template
@@ -43,7 +43,7 @@
     src: "nats-server.conf.j2"
     dest: /etc/nats-server/nats-server.conf
     mode: 0644
-  when: nats_config_template_status is undefined or not nats_config_template_status.stat.exists
+  when: nats_config_template is undefined or not nats_config_template_status.stat.exists
   notify: restart nats-server
 
 - name: Ensure NATS Server service is started and enabled on boot
